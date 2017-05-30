@@ -29,11 +29,11 @@ valid ns =
 -- check a String to see if it represents a valid CUSIP
 checkCUSIP :: String -> Result
 checkCUSIP cs 
-       | l == 9    = case allMaybe $ fmap toValue cs of
-                              Nothing -> InvalidContent
-                              Just ns -> if valid ns then Valid else BadCheck
        | l < 9     = TooShort
-       | otherwise = TooLong
+       | l > 9     = TooLong
+       | otherwise = case allMaybe (fmap toValue cs) of
+                         Nothing -> InvalidContent
+                         Just ns -> if valid ns then Valid else BadCheck
     where l = length cs
 
 testData =  
