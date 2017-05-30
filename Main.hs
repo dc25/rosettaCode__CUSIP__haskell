@@ -16,15 +16,15 @@ toValue c = elemIndex c $ ['0'..'9'] ++ ['A'..'Z'] ++ "*&#"
 
 -- check a list of ints to see if they represent a valid CUSIP
 valid :: [Int] -> Bool
-valid ns = 
-    let -- multiply first 8 values with even index by 2
-        s0 = zipWith (\i n -> ((if odd i then 1 else 2) * n)) [1..] $ take 8 ns
+valid ns0 = 
+    let -- multiply values with even index by 2
+        ns1 = zipWith (\i n -> (if odd i then n else 2*n)) [1..] $ take 8 ns0
 
         -- apply div/mod formula from site and sum up results
-        s1 = sum $ fmap (\s -> ( s `div` 10 ) + s `mod` 10) s0
+        sm = sum $ fmap (\s -> ( s `div` 10 ) + s `mod` 10) ns1
 
-    in  -- apply mod/mod formula from site and compare to 9th value ( 0 index ) 
-        ns!!8 == (10 - (s1 `mod` 10)) `mod` 10
+    in  -- apply mod/mod formula from site and compare to last value in list
+        ns0!!8 == (10 - (sm `mod` 10)) `mod` 10
 
 -- check a String to see if it represents a valid CUSIP
 checkCUSIP :: String -> Result
@@ -45,4 +45,4 @@ testData =
     , "68389X105"
     ]
 
-main = mapM_ putStrLn (fmap (\t -> t ++ ": " ++ show (checkCUSIP t)) testData)
+main = mapM_ putStrLn (fmap (\s -> s ++ ": " ++ show (checkCUSIP s)) testData)
